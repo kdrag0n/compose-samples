@@ -16,10 +16,12 @@
 
 package com.example.compose.rally.ui.theme
 
+import androidx.compose.animation.core.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Typography
 import androidx.compose.material.darkColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.text.TextStyle
@@ -29,6 +31,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.example.compose.rally.R
+import dev.kdrag0n.android12ext.monet.colors.Oklch
+import dev.kdrag0n.android12ext.monet.theme.DynamicColorScheme
+import dev.kdrag0n.android12ext.monet.theme.MaterialYouTargets
+import dev.kdrag0n.android12ext.monet.toMaterialColors
 
 private val EczarFontFamily = FontFamily(
     Font(R.font.eczar_regular),
@@ -45,8 +51,20 @@ private val RobotoCondensed = FontFamily(
  */
 @Composable
 fun RallyTheme(content: @Composable () -> Unit) {
+    val infiniteTransition = rememberInfiniteTransition()
+    val hue by infiniteTransition.animateFloat(
+        initialValue = 0.0f,
+        targetValue = 360.0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(10000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        )
+    )
+
+    val colorScheme = DynamicColorScheme(MaterialYouTargets(), Oklch(1.0, 0.2, hue.toDouble()))
+
     // Rally is always dark themed.
-    val colors = darkColors(
+    /*val colors =*/ darkColors(
         primary = Green500,
         surface = DarkBlue900,
         onSurface = Color.White,
@@ -122,7 +140,7 @@ fun RallyTheme(content: @Composable () -> Unit) {
             fontSize = 10.sp
         )
     )
-    MaterialTheme(colors = colors, typography = typography, content = content)
+    MaterialTheme(colors = colorScheme.toMaterialColors(false), typography = typography, content = content)
 }
 
 /**

@@ -16,6 +16,7 @@
 
 package com.example.jetsnack.ui.theme
 
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
@@ -30,65 +31,85 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import dev.kdrag0n.android12ext.monet.colors.Oklch
+import dev.kdrag0n.android12ext.monet.shade
+import dev.kdrag0n.android12ext.monet.theme.DynamicColorScheme
+import dev.kdrag0n.android12ext.monet.theme.MaterialYouTargets
 
-private val LightColorPalette = JetsnackColors(
-    brand = Shadow5,
-    brandSecondary = Ocean3,
-    uiBackground = Neutral0,
-    uiBorder = Neutral4,
-    uiFloated = FunctionalGrey,
-    textSecondary = Neutral7,
-    textHelp = Neutral6,
-    textInteractive = Neutral0,
-    textLink = Ocean11,
-    iconSecondary = Neutral7,
-    iconInteractive = Neutral0,
-    iconInteractiveInactive = Neutral1,
-    error = FunctionalRed,
-    gradient6_1 = listOf(Shadow4, Ocean3, Shadow2, Ocean3, Shadow4),
-    gradient6_2 = listOf(Rose4, Lavender3, Rose2, Lavender3, Rose4),
-    gradient3_1 = listOf(Shadow2, Ocean3, Shadow4),
-    gradient3_2 = listOf(Rose2, Lavender3, Rose4),
-    gradient2_1 = listOf(Shadow4, Shadow11),
-    gradient2_2 = listOf(Ocean3, Shadow3),
-    gradient2_3 = listOf(Lavender3, Rose2),
-    tornado1 = listOf(Shadow4, Ocean3),
-    isDark = false
-)
-
-private val DarkColorPalette = JetsnackColors(
-    brand = Shadow1,
-    brandSecondary = Ocean2,
-    uiBackground = Neutral8,
-    uiBorder = Neutral3,
-    uiFloated = FunctionalDarkGrey,
-    textPrimary = Shadow1,
-    textSecondary = Neutral0,
-    textHelp = Neutral1,
-    textInteractive = Neutral7,
-    textLink = Ocean2,
-    iconPrimary = Shadow1,
-    iconSecondary = Neutral0,
-    iconInteractive = Neutral7,
-    iconInteractiveInactive = Neutral6,
-    error = FunctionalRedDark,
-    gradient6_1 = listOf(Shadow5, Ocean7, Shadow9, Ocean7, Shadow5),
-    gradient6_2 = listOf(Rose11, Lavender7, Rose8, Lavender7, Rose11),
-    gradient3_1 = listOf(Shadow9, Ocean7, Shadow5),
-    gradient3_2 = listOf(Rose8, Lavender7, Rose11),
-    gradient2_1 = listOf(Ocean3, Shadow3),
-    gradient2_2 = listOf(Ocean4, Shadow2),
-    gradient2_3 = listOf(Lavender3, Rose3),
-    tornado1 = listOf(Shadow4, Ocean3),
-    isDark = true
-)
+private val targets = MaterialYouTargets()
 
 @Composable
 fun JetsnackTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colors = if (darkTheme) DarkColorPalette else LightColorPalette
+    val infiniteTransition = rememberInfiniteTransition()
+    val hue by infiniteTransition.animateFloat(
+        initialValue = 0.0f,
+        targetValue = 360.0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(10000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        )
+    )
+
+    val colorScheme = DynamicColorScheme(targets, Oklch(1.0, 0.2, hue.toDouble()))
+
+    val colors = with(colorScheme) {
+        if (darkTheme) {
+            JetsnackColors(
+                brand = Shadow1,
+                brandSecondary = Ocean2,
+                uiBackground = Neutral8,
+                uiBorder = Neutral3,
+                uiFloated = FunctionalDarkGrey,
+                textPrimary = Shadow1,
+                textSecondary = Neutral0,
+                textHelp = Neutral1,
+                textInteractive = Neutral7,
+                textLink = Ocean2,
+                iconPrimary = Shadow1,
+                iconSecondary = Neutral0,
+                iconInteractive = Neutral7,
+                iconInteractiveInactive = Neutral6,
+                error = FunctionalRedDark,
+                gradient6_1 = listOf(Shadow5, Ocean7, Shadow9, Ocean7, Shadow5),
+                gradient6_2 = listOf(Rose11, Lavender7, Rose8, Lavender7, Rose11),
+                gradient3_1 = listOf(Shadow9, Ocean7, Shadow5),
+                gradient3_2 = listOf(Rose8, Lavender7, Rose11),
+                gradient2_1 = listOf(Ocean3, Shadow3),
+                gradient2_2 = listOf(Ocean4, Shadow2),
+                gradient2_3 = listOf(Lavender3, Rose3),
+                tornado1 = listOf(Shadow4, Ocean3),
+                isDark = true
+            )
+        } else {
+            JetsnackColors(
+                brand = accent1.shade(600),
+                brandSecondary = accent3.shade(300),
+                uiBackground = neutral1.shade(50),
+                uiBorder = neutral1.shade(400),
+                uiFloated = neutral1.shade(100),
+                textSecondary = neutral1.shade(700),
+                textHelp = neutral1.shade(600),
+                textInteractive = neutral1.shade(50),
+                textLink = accent3.shade(600),
+                iconSecondary = neutral1.shade(700),
+                iconInteractive = neutral1.shade(50),
+                iconInteractiveInactive = neutral1.shade(100),
+                error = accent3.shade(600),
+                gradient6_1 = listOf(accent1.shade(400), accent3.shade(200), accent1.shade(100), accent3.shade(200), accent1.shade(400)),
+                gradient6_2 = listOf(accent3.shade(400), accent1.shade(200), accent3.shade(100), accent1.shade(200), accent3.shade(400)),
+                gradient3_1 = listOf(Shadow2, Ocean3, Shadow4),
+                gradient3_2 = listOf(Rose2, Lavender3, Rose4),
+                gradient2_1 = listOf(accent1.shade(300), accent1.shade(600)),
+                gradient2_2 = listOf(accent3.shade(100), accent1.shade(300)),
+                gradient2_3 = listOf(accent1.shade(300), accent1.shade(100)),
+                tornado1 = listOf(accent1.shade(400), accent3.shade(200)),
+                isDark = false
+            )
+        }
+    }
 
     val sysUiController = rememberSystemUiController()
     SideEffect {
